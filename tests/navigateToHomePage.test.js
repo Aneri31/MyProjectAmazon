@@ -14,11 +14,25 @@ test.describe('Amazon Product Tests', () => {
 
     test('Navigate to a Specific Product Page', async () => {
         test.setTimeout(90000);
-        await commonUtils.navigateToHomePage(page);
-        await commonUtils.searchProduct(page);
-        await commonUtils.waitForSelector(page, commonUtils.locators.productImageXPath);
-        const productLink = await page.$(commonUtils.locators.productImageXPath);
-        await productLink.click();
-        await commonUtils.checkPageTitle(page, commonUtils.locators.productName, expect);
+        try {
+            await commonUtils.navigateToHomePage(page);
+            await commonUtils.searchProduct(page);
+            await commonUtils.waitForSelector(page, commonUtils.locators.productImageXPath);
+            
+            const productLink = await page.$(commonUtils.locators.productImageXPath);
+            if (productLink) {
+                await productLink.click();
+                await commonUtils.checkPageTitle(page, commonUtils.locators.productName, expect);
+                
+                // Take screenshot on test pass
+                await page.screenshot({ path: `test-results/passed-screenshot-${Date.now()}.png` });
+            } else {
+                throw new Error('Product image link not found.');
+            }
+        } catch (error) {
+            console.error('Test failed:', error);
+            throw error; // Re-throw to fail the test explicitly
+        }
     });
+           
 });
