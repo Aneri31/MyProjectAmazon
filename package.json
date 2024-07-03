@@ -1,0 +1,15 @@
+{
+    "name": "my-demo-project",
+    "version": "1.0.0",
+    "description": "A demo project for running Playwright tests",
+    "main": "index.js",
+    "scripts": {
+      "test": "npx playwright test"
+    },
+    "author": "Aneri patel",
+    "license": "ISC",
+    "devDependencies": {
+      "@playwright/test": "^1.16.3"
+    }
+  }
+  
