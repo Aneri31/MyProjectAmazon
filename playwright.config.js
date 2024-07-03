@@ -8,7 +8,7 @@ module.exports = {
         timeout: 60000,
         actionTimeout: 10000,
         viewport: { width: 1280, height: 720 },
-        headless: false,
+        headless: true,
         browserName: 'chromium',
         trace: 'on',
     },
@@ -26,6 +26,7 @@ module.exports = {
             use: { ...devices['Desktop Safari'] },
         },
     ],
+    workers: 3,
     apiURLs: {
         users: 'https://api.example.com/users',
         products: 'https://api.example.com/products',

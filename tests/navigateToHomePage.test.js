@@ -14,7 +14,7 @@ test.describe('Amazon Product Tests', () => {
 
     test('Navigate to a Specific Product Page', async () => {
         test.setTimeout(90000);
-        try {
+         try {
             await commonUtils.navigateToHomePage(page);
             await commonUtils.searchProduct(page);
             await commonUtils.waitForSelector(page, commonUtils.locators.productImageXPath);
@@ -31,7 +31,7 @@ test.describe('Amazon Product Tests', () => {
             }
         } catch (error) {
             console.error('Test failed:', error);
-            throw error; // Re-throw to fail the test explicitly
+            throw error; 
         }
     });
            
