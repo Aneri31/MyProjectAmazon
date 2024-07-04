@@ -2,7 +2,7 @@ name: Run Playwright Tests
 
 on:
     schedule:
-      - cron: '50 9 * * *'
+      - cron: '30 10 * * *'
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -19,4 +19,4 @@ jobs:
         run: npm install  # Install project dependencies
 
       - name: Run Playwright Tests
-        run: npx playwright test navigateToHomePage.test.js
+        run: npx playwright test navigateToHomePage.spec.js
