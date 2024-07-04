@@ -2,7 +2,7 @@ name: Run Playwright Tests
 
 on:
   schedule:
-    - cron: '10 11 * * *'
+    - cron: '45 10 * * *'
 
 jobs:
   test:
@@ -21,7 +21,6 @@ jobs:
         run: |
           npm ci
           npm run build --if-present
-          npx playwright install
 
-      - name: Run tests
-        run: npm test
+      - name: Run Playwright tests
+        run: npx playwright test
