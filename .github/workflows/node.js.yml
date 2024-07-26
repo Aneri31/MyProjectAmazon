@@ -2,7 +2,7 @@ name: Scheduled Playwright Test
 
 on:
   schedule:
-    - cron: '55 11 * * *'  # Run at 17:20 UTC every day
+    - cron: '00 02 * * *'  # Run at 11:55 UTC every day
 
 jobs:
   test:
@@ -21,14 +21,29 @@ jobs:
         run: npm install
 
       - name: Run Playwright tests
-        run: npx playwright test --reporter=html
+        run: |
+          mkdir -p reports  # Create reports directory
+          npx playwright test --reporter=html --output=reports  # Specify reports directory
 
-      - name: List files in playwright-report directory
-        run: ls -la playwright-report/
+      - name: List files in reports directory
+        run: ls -la reports/
 
       - name: Upload Playwright report
         uses: actions/upload-artifact@v3
         with:
           name: playwright-report
-          path: playwright-report/
+          path: reports/
+
+      - name: Send email with Playwright report
+        uses: dawidd6/action-send-mail@v3
+        with:
+          from: ${{ secrets.EMAIL_FROM }}  # Use secrets for sensitive information
+          to: ${{ secrets.EMAIL_TO }}
+          subject: Playwright Test Report
+          body: Please find the attached Playwright test report.
+          attachments: reports/*.html  # Attach HTML report
+          smtp-server: ${{ secrets.SMTP_SERVER }}
+          smtp-port: ${{ secrets.SMTP_PORT }}
+          smtp-username: ${{ secrets.SMTP_USERNAME }}
+          smtp-password: ${{ secrets.SMTP_PASSWORD }}
 
