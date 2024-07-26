@@ -2,23 +2,19 @@ name: Run Playwright Tests
 
 on:
   schedule:
-    - cron: '52 06 * * *'  # 12:22 IST converted to 06:52 UTC
+    - cron: '50 09 * * *'  # 15:10 IST converted to 09:40 UTC
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        node-version: [18.x]
-
     steps:
     - uses: actions/checkout@v4
 
-    - name: Use Node.js ${{ matrix.node-version }}
+    - name: Use Node.js
       uses: actions/setup-node@v3
       with:
-        node-version: ${{ matrix.node-version }}
+        node-version: '18.x'
         cache: 'npm'
 
     - run: npm ci
@@ -26,10 +22,31 @@ jobs:
     - run: npx playwright install
 
     - name: Run Playwright Tests
-      run: npx playwright test --reporter=html
+      run: |
+        npx playwright test --reporter=html
+        npx playwright show-report > summary.txt
 
-    - name: Upload Playwright HTML Report
-      uses: actions/upload-artifact@v3
+    - name: Parse Mail Config
+      id: parse_mail_config
+      run: |
+        echo "${{ secrets.MAIL_CONFIG }}" | jq '.' > mail_config.json
+        echo "::set-output name=smtp_server::$(jq -r '.SMTP_SERVER' mail_config.json)"
+        echo "::set-output name=smtp_port::$(jq -r '.SMTP_PORT' mail_config.json)"
+        echo "::set-output name=smtp_username::$(jq -r '.SMTP_USERNAME' mail_config.json)"
+        echo "::set-output name=smtp_password::$(jq -r '.SMTP_PASSWORD' mail_config.json)"
+
+    - name: Send Email with Test Summary
+      uses: dawidd6/action-send-mail@v3
       with:
-        name: playwright-html-report
-        path: playwright-report
+        server_address: ${{ steps.parse_mail_config.outputs.smtp_server }}
+        server_port: ${{ steps.parse_mail_config.outputs.smtp_port }}
+        username: ${{ steps.parse_mail_config.outputs.smtp_username }}
+        password: ${{ steps.parse_mail_config.outputs.smtp_password }}
+        subject: 'Playwright Test Results Summary'
+        body: |
+          <p>Playwright test results summary:</p>
+          <pre>$(cat summary.txt)</pre>
+        to: 'recipient@example.com'
+        from: ${{ steps.parse_mail_config.outputs.smtp_username }}
+        attachments: |
+          playwright-report/*.html
