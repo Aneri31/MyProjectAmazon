@@ -31,9 +31,9 @@ module.exports = {
         users: 'https://api.example.com/users',
         products: 'https://api.example.com/products',
     },
-    reporters: [
-        ['json', { outputFile: 'test-results/results.json' }],
-        ['html', { outputFile: 'test-results/report.html' }],
-    ],
+    reporter: [
+    ['list'],
+    ['html', { outputFolder: 'playwright-report', open: 'never' }]
+  ],
     screenshots: 'on',
 };
