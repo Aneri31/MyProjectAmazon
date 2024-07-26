@@ -1,36 +1,32 @@
-name: Playwright Tests
+name: Scheduled Playwright Test
 
 on:
   schedule:
-    - cron: '15 10 * * *'
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
+    - cron: '20 17 * * *'  # Run at 17:20 UTC every day
 
 jobs:
   test:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v3
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '16'
+          node-version: '17.20'  # Specify Node.js version if needed
 
       - name: Install dependencies
         run: npm install
 
       - name: Run Playwright tests
-        run: npx playwright test
+        run: npx playwright test --reporter=html
+
+      - name: List files in playwright-report directory
+        run: ls -la playwright-report/
 
       - name: Upload Playwright report
-        if: always() # Ensure the report is uploaded even if tests fail
         uses: actions/upload-artifact@v3
         with:
           name: playwright-report
