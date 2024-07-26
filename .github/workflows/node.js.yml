@@ -2,7 +2,7 @@ name: Scheduled Playwright Test
 
 on:
   schedule:
-    - cron: '20 17 * * *'  # Run at 17:20 UTC every day
+    - cron: '55 11 * * *'  # Run at 17:20 UTC every day
 
 jobs:
   test:
