@@ -2,26 +2,34 @@ name: Run Playwright Tests
 
 on:
   schedule:
-    - cron: '40 11 * * *'
+    - cron: '52 06 * * *'  # 12:22 IST converted to 06:52 UTC
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     strategy:
       matrix:
         node-version: [18.x]
-        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
     steps:
     - uses: actions/checkout@v4
+
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v3
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
+
     - run: npm ci
     - run: npm run build --if-present
     - run: npx playwright install
-    - run: npm test
+
+    - name: Run Playwright Tests
+      run: npx playwright test --reporter=html
+
+    - name: Upload Playwright HTML Report
+      uses: actions/upload-artifact@v3
+      with:
+        name: playwright-html-report
+        path: playwright-report
