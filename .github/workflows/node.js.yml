@@ -1,52 +1,35 @@
-name: Run Playwright Tests
+name: Playwright Tests
 
 on:
-  schedule:
-    - cron: '50 09 * * *'  # 15:10 IST converted to 09:40 UTC
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-    - name: Use Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: '18.x'
-        cache: 'npm'
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
 
-    - run: npm ci
-    - run: npm run build --if-present
-    - run: npx playwright install
+      - name: Install dependencies
+        run: npm install
 
-    - name: Run Playwright Tests
-      run: |
-        npx playwright test --reporter=html
-        npx playwright show-report > summary.txt
+      - name: Run Playwright tests
+        run: npx playwright test
 
-    - name: Parse Mail Config
-      id: parse_mail_config
-      run: |
-        echo "${{ secrets.MAIL_CONFIG }}" | jq '.' > mail_config.json
-        echo "::set-output name=smtp_server::$(jq -r '.SMTP_SERVER' mail_config.json)"
-        echo "::set-output name=smtp_port::$(jq -r '.SMTP_PORT' mail_config.json)"
-        echo "::set-output name=smtp_username::$(jq -r '.SMTP_USERNAME' mail_config.json)"
-        echo "::set-output name=smtp_password::$(jq -r '.SMTP_PASSWORD' mail_config.json)"
-
-    - name: Send Email with Test Summary
-      uses: dawidd6/action-send-mail@v3
-      with:
-        server_address: ${{ steps.parse_mail_config.outputs.smtp_server }}
-        server_port: ${{ steps.parse_mail_config.outputs.smtp_port }}
-        username: ${{ steps.parse_mail_config.outputs.smtp_username }}
-        password: ${{ steps.parse_mail_config.outputs.smtp_password }}
-        subject: 'Playwright Test Results Summary'
-        body: |
-          <p>Playwright test results summary:</p>
-          <pre>$(cat summary.txt)</pre>
-        to: 'recipient@example.com'
-        from: ${{ steps.parse_mail_config.outputs.smtp_username }}
-        attachments: |
-          playwright-report/*.html
+      - name: Upload Playwright report
+        if: always() # Ensure the report is uploaded even if tests fail
+        uses: actions/upload-artifact@v3
+        with:
+          name: playwright-report
+          path: playwright-report/
