@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 name: Playwright Tests
 
 on:
@@ -7,24 +8,40 @@ on:
   pull_request:
     branches:
       - main
+=======
+name: Scheduled Playwright Test
+
+on:
+  schedule:
+    - cron: '05 02 * * *'  # Run at 11:55 UTC every day
+>>>>>>> 67cc444a81534991852852450f31d6d5397bd7e9
 
 jobs:
   test:
     runs-on: ubuntu-latest
 
     steps:
+<<<<<<< HEAD
       - name: Checkout repository
+=======
+      - name: Checkout code
+>>>>>>> 67cc444a81534991852852450f31d6d5397bd7e9
         uses: actions/checkout@v3
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
+<<<<<<< HEAD
           node-version: '16'
+=======
+          node-version: '17.20'  # Specify Node.js version if needed
+>>>>>>> 67cc444a81534991852852450f31d6d5397bd7e9
 
       - name: Install dependencies
         run: npm install
 
       - name: Run Playwright tests
+<<<<<<< HEAD
         run: npx playwright test
 
       - name: Upload Playwright report
@@ -33,3 +50,47 @@ jobs:
         with:
           name: playwright-report
           path: playwright-report/
+=======
+        run: |
+          mkdir -p reports  # Create reports directory
+          npx playwright test --reporter=html  # Ensure this generates report in the 'reports' folder
+
+      - name: List files in reports directory
+        run: ls -la reports/
+
+      - name: Upload Playwright report
+        uses: actions/upload-artifact@v3
+        with:
+          name: playwright-report
+          path: reports/  # Path where the reports are saved
+
+      - name: Send email with Playwright report
+        env:
+          MAIL_CONFIG: ${{ secrets.MAIL_CONFIG }}  # Load secret into environment variable
+        run: |
+          # Extract values from the JSON string using jq
+          EMAIL_FROM=$(echo "$MAIL_CONFIG" | jq -r '.EMAIL_FROM')
+          EMAIL_TO=$(echo "$MAIL_CONFIG" | jq -r '.EMAIL_TO')
+          SMTP_SERVER=$(echo "$MAIL_CONFIG" | jq -r '.SMTP_SERVER')
+          SMTP_PORT=$(echo "$MAIL_CONFIG" | jq -r '.SMTP_PORT')
+          SMTP_USERNAME=$(echo "$MAIL_CONFIG" | jq -r '.SMTP_USERNAME')
+          SMTP_PASSWORD=$(echo "$MAIL_CONFIG" | jq -r '.SMTP_PASSWORD')
+
+          # Send email using extracted values
+          echo "Sending email from $EMAIL_FROM to $EMAIL_TO via $SMTP_SERVER:$SMTP_PORT"
+          echo "SMTP Username: $SMTP_USERNAME"
+          echo "SMTP Password: $SMTP_PASSWORD"
+
+      - name: Send email with Playwright report
+        uses: dawidd6/action-send-mail@v3
+        with:
+          from: ${{ env.EMAIL_FROM }}
+          to: ${{ env.EMAIL_TO }}
+          subject: Playwright Test Report
+          body: Please find the attached Playwright test report.
+          attachments: reports/*.html  # Attach HTML report
+          smtp-server: ${{ env.SMTP_SERVER }}
+          smtp-port: ${{ env.SMTP_PORT }}
+          smtp-username: ${{ env.SMTP_USERNAME }}
+          smtp-password: ${{ env.SMTP_PASSWORD }}
+>>>>>>> 67cc444a81534991852852450f31d6d5397bd7e9
