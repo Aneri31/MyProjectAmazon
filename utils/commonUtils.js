@@ -1,56 +1,39 @@
-const config = require('../playwright.config');
-const locators = require('../configuration/locators');
-
-async function navigateToHomePage(page) {
-    try {
-        await page.goto(config.use.baseURL, { waitUntil: 'domcontentloaded', timeout: config.use.navigationTimeout });
-    } catch (error) {
-        console.error('Navigation to home page failed:', error);
-        throw error;
-    }
+const locators = require('../configuration/locators')
+async function navigateToAmazonHome(page) {
+  await page.goto('https://www.amazon.com/');
+  await page.waitForSelector(locators.searchBoxXPath);
 }
 
-async function waitForPageNavigation(page) {
-    try {
-        await page.waitForNavigation({ timeout: config.use.navigationTimeout });
-    } catch (error) {
-        console.error('Waiting for page navigation failed:', error);
-        throw error;
-    }
+async function searchForProduct(page, productName) {
+  await page.fill(locators.searchBoxXPath, productName);
+  await page.press(locators.searchBoxXPath, 'Enter');
 }
 
-async function waitForSelector(page, selector) {
-    try {
-        await page.waitForSelector(selector, { timeout: config.use.timeout });
-    } catch (error) {
-        console.error(`Waiting for selector "${selector}" failed:`, error);
-        throw error;
-    }
+async function checkProductTitleInSearchResults(page, expectedTitle) {
+  await page.waitForSelector(locators.productSearchResultXPath, { timeout: 60000 });
+  const productTitle = await page.textContent(locators.productSearchResultXPath);
+  return productTitle;
 }
 
-async function checkPageTitle(page, expectedTitle, expect) {
-    try {
-        const pageTitle = await page.title();
-        expect(pageTitle).toContain(expectedTitle);
-    } catch (error) {
-        console.error('Checking page title failed:', error);
-        throw error;
-    }
+async function checkProductImages(page) {
+  const images = await page.$$eval(locators.productImageXPath, imgs => imgs.length > 0);
+  return images;
 }
 
-async function searchProduct(page) {
-    await waitForSelector(page, locators.searchBoxXPath);
-    await page.type(locators.searchBoxXPath, locators.productName);
-    await page.keyboard.press('Enter');
-    await waitForPageNavigation(page);
+async function checkProductPrices(page) {
+  const prices = await page.$$eval('span.a-price-whole', prices => prices.length > 0);
+  return prices;
+}
+
+async function clickOnFirstProduct(page) {
+  await page.click(locators.productSearchResultXPath);
 }
 
 module.exports = {
-    navigateToHomePage,
-    waitForPageNavigation,
-    waitForSelector,
-    searchProduct,
-    checkPageTitle,
-    locators,
-    config
+  navigateToAmazonHome,
+  searchForProduct,
+  checkProductTitleInSearchResults,
+  checkProductImages,
+  checkProductPrices,
+  clickOnFirstProduct
 };
