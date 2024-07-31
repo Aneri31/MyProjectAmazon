@@ -2,7 +2,7 @@ name: Run Playwright Tests
 
 on:
   schedule:
-    - cron: '40 11 * * *'
+    - cron: '40 06 * * *'
 
 jobs:
   build:
