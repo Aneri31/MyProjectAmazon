@@ -2,6 +2,11 @@ name: Run Playwright Tests
 
 on:
   workflow_dispatch:  # Manual trigger from the GitHub UI
+    inputs:
+      test_path:
+        description: 'Path to the test file or directory to run (e.g., copb2b/tests/login/homepage.test.ts or copb2b/tests/login/)'
+        required: false
+        default: 'copb2b/tests/login/homepage.test.ts'  # Default specific test file
 
 jobs:
   test:
@@ -22,7 +27,7 @@ jobs:
       - name: Install Playwright dependencies
         run: npx playwright install --with-deps
 
-      - name: Run Specific Playwright Test
+      - name: Run Playwright Tests
         run: |
-          echo "Running the specific Playwright test file..."
-          npx playwright test ${{ github.event.inputs.test_file || 'tests/default-test.spec.ts' }}  # Default to a test file or specify
+          echo "Running Playwright tests for: ${{ github.event.inputs.test_path }}"
+          npx playwright test ${{ github.event.inputs.test_path }}
